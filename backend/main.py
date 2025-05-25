@@ -3,9 +3,24 @@ from pydantic import BaseModel
 from typing import List
 import json, os
 from backend.prompt_engine import generate_prompt
+from backend.rag_engine import load_and_embed, search_docs
+from fastapi import UploadFile, File
+from pydantic import BaseModel
 import requests
 
 app = FastAPI()
+
+@app.post("/upload_doc/")
+def upload_doc(name: str, file: UploadFile = File(...)):
+    filepath = f"temp_{file.filename}"
+    with open(filepath, "wb") as f:
+        f.write(file.file.read())
+    try:
+        load_and_embed(filepath, name)
+        os.remove(filepath)
+        return {"msg": f"{file.filename} embedded for {name}!"}
+    except Exception as e:
+        return {"error": str(e)}
 
 PERSONA_DIR = "backend/persona_profiles"
 
@@ -50,20 +65,27 @@ def get_persona_prompt(name: str, user_input: str):
     prompt = generate_prompt(persona, user_input)
     return {"prompt": prompt}
 
+class QueryInput(BaseModel):
+    name: str
+    user_input: str
+    model: str = "mistral"
+
 @app.post("/ask_persona/")
-def ask_persona(name: str, user_input: str, model: str = "mistral"):
-    filename = f"{PERSONA_DIR}/{name.lower().replace(' ', '_')}.json"
+def ask_persona(input: QueryInput):
+    filename = f"{PERSONA_DIR}/{input.name.lower().replace(' ', '_')}.json"
     if not os.path.exists(filename):
         return {"error": "Persona not found"}
     with open(filename) as f:
         persona = json.load(f)
-    prompt = generate_prompt(persona, user_input)
+    prompt = generate_prompt(persona, input.user_input)
     try:
+        context = search_docs(input.name, input.user_input)
+        full_prompt = prompt + f"\n\nRelevant context:\n{context}"
         response = requests.post(
             "http://localhost:11434/api/generate",
             json={
-                "model": model,  # e.g., "mistral", "llama3", "gemma"
-                "prompt": prompt,
+                "model": input.model,
+                "prompt": full_prompt,
                 "stream": False
             }
         )
