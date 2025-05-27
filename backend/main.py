@@ -68,7 +68,7 @@ def get_persona_prompt(name: str, user_input: str):
 class QueryInput(BaseModel):
     name: str
     user_input: str
-    model: str = "mistral"
+    model: str = "gemma3"
 
 @app.post("/ask_persona/")
 def ask_persona(input: QueryInput):
