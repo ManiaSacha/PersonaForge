@@ -4,6 +4,8 @@ from typing import List
 import json, os
 from backend.prompt_engine import generate_prompt
 from backend.rag_engine import load_and_embed, search_docs
+from backend.persona_storage import save_persona, load_persona, log_interaction, export_persona_data
+from fastapi.responses import FileResponse
 from fastapi import UploadFile, File
 from pydantic import BaseModel
 import requests
@@ -40,9 +42,7 @@ def read_root():
 
 @app.post("/persona/")
 def create_persona(persona: Persona):
-    filename = f"{PERSONA_DIR}/{persona.name.lower().replace(' ', '_')}.json"
-    with open(filename, "w") as f:
-        json.dump(persona.dict(), f, indent=2)
+    save_persona(persona.dict())
     return {"msg": f"Persona '{persona.name}' saved!"}
 
 @app.get("/personas/")
@@ -72,11 +72,9 @@ class QueryInput(BaseModel):
 
 @app.post("/ask_persona/")
 def ask_persona(input: QueryInput):
-    filename = f"{PERSONA_DIR}/{input.name.lower().replace(' ', '_')}.json"
-    if not os.path.exists(filename):
+    persona = load_persona(input.name)
+    if not persona:
         return {"error": "Persona not found"}
-    with open(filename) as f:
-        persona = json.load(f)
     prompt = generate_prompt(persona, input.user_input)
     try:
         context = search_docs(input.name, input.user_input)
@@ -89,7 +87,8 @@ def ask_persona(input: QueryInput):
                 "stream": False
             }
         )
-        data = response.json()
-        return {"response": data.get("response")}
+        answer = response.json().get("response")
+        log_interaction(input.name, input.user_input, answer)
+        return {"response": answer}
     except Exception as e:
         return {"error": str(e)}

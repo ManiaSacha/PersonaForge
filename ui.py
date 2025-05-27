@@ -30,6 +30,13 @@ def upload_file(name, file, model):
     r = requests.post(f"{BASE_URL}/upload_doc/?name={name}", files=files)
     return r.json().get("msg", str(r.content))
 
+def export_persona(name):
+    fname = f"{name.lower().replace(' ', '_')}_export.json"
+    r = requests.get(f"{BASE_URL}/export_persona/{name}")
+    with open(fname, "wb") as f:
+        f.write(r.content)
+    return f"Exported to {fname}"
+
 with gr.Blocks() as demo:
     gr.Markdown("# 🤖 PersonaForge – Your Custom AI Persona Builder")
 
@@ -58,5 +65,11 @@ with gr.Blocks() as demo:
         up_button = gr.Button("Upload & Embed")
         up_result = gr.Textbox(label="Status")
         up_button.click(upload_file, [up_name, file, model_choice2], up_result)
+
+    with gr.Tab("Export Persona"):
+        exp_name = gr.Textbox(label="Persona Name")
+        exp_btn = gr.Button("Download Export")
+        exp_result = gr.Textbox(label="Export Status")
+        exp_btn.click(export_persona, exp_name, exp_result)
 
 demo.launch()
