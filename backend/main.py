@@ -68,7 +68,7 @@ def get_persona_prompt(name: str, user_input: str):
 class QueryInput(BaseModel):
     name: str
     user_input: str
-    model: str = "gemma3"
+    model: str = "gemma3"  # Default model, other options include: llava, llama3.2, gemma:2b, tinyllama
 
 @app.post("/ask_persona/")
 def ask_persona(input: QueryInput):
@@ -92,3 +92,50 @@ def ask_persona(input: QueryInput):
         return {"response": answer}
     except Exception as e:
         return {"error": str(e)}
+
+@app.get("/export_persona/{name}")
+def export_persona(name: str):
+    data = export_persona_data(name)
+    filename = f"{name.lower().replace(' ', '_')}_export.json"
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=2)
+    return FileResponse(filename, filename=filename, media_type="application/json")
+
+class PersonaChatInput(BaseModel):
+    name1: str
+    name2: str
+    starter: str
+    rounds: int = 5
+    model: str = "gemma3"  # Default model, other options include: llava, llama3.2, gemma:2b, tinyllama
+
+@app.post("/persona_chat/")
+def persona_to_persona(input: PersonaChatInput):
+    p1 = load_persona(input.name1)
+    p2 = load_persona(input.name2)
+    if not p1 or not p2:
+        return {"error": "One or both personas not found"}
+
+    convo = []
+    current_msg = input.starter
+    current_speaker = input.name1
+
+    for i in range(input.rounds):
+        speaker = load_persona(current_speaker)
+        prompt = generate_prompt(speaker, current_msg)
+        context = search_docs(current_speaker, current_msg)
+        full_prompt = prompt + f"\n\nRelevant context:\n{context}"
+
+        response = requests.post(
+            "http://localhost:11434/api/generate",
+            json={"model": input.model, "prompt": full_prompt, "stream": False}
+        )
+        reply = response.json().get("response", "")
+        convo.append(f"🗣 **{current_speaker}**: {current_msg}\n🤖 **Reply**: {reply}\n")
+
+        log_interaction(current_speaker, current_msg, reply)
+
+        # Prepare for next round
+        current_msg = reply
+        current_speaker = input.name2 if current_speaker == input.name1 else input.name1
+
+    return {"conversation": "\n---\n".join(convo)}

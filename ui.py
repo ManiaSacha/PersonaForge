@@ -53,7 +53,7 @@ with gr.Blocks() as demo:
     with gr.Tab("Ask Persona"):
         ask_name = gr.Textbox(label="Persona Name")
         query = gr.Textbox(label="Your Question")
-        model_choice = gr.Dropdown(["llava", "gemma3", "llama3.2"], value="gemma3", label="Model")
+        model_choice = gr.Dropdown(["llava", "gemma3", "llama3.2", "gemma:2b", "tinyllama"], value="gemma3", label="Model")
         ask_button = gr.Button("Ask")
         reply = gr.Textbox(label="Persona's Answer")
         ask_button.click(ask_persona, [ask_name, query, model_choice], reply)
@@ -61,7 +61,7 @@ with gr.Blocks() as demo:
     with gr.Tab("Upload Knowledge"):
         up_name = gr.Textbox(label="Persona Name")
         file = gr.File(label="Upload PDF, TXT or MD")
-        model_choice2 = gr.Dropdown(["llava", "gemma3", "llama3.2"], value="gemma3", label="Model (for future use)")
+        model_choice2 = gr.Dropdown(["llava", "gemma3", "llama3.2", "gemma:2b", "tinyllama"], value="gemma3", label="Model (for future use)")
         up_button = gr.Button("Upload & Embed")
         up_result = gr.Textbox(label="Status")
         up_button.click(upload_file, [up_name, file, model_choice2], up_result)
@@ -71,5 +71,22 @@ with gr.Blocks() as demo:
         exp_btn = gr.Button("Download Export")
         exp_result = gr.Textbox(label="Export Status")
         exp_btn.click(export_persona, exp_name, exp_result)
+        
+    with gr.Tab("AI-to-AI Chat"):
+        gr.Markdown("### 🤖 Let Two Personas Talk to Each Other")
+        persona1 = gr.Textbox(label="Persona 1 Name")
+        persona2 = gr.Textbox(label="Persona 2 Name")
+        starter = gr.Textbox(label="Opening Message")
+        rounds = gr.Slider(label="Rounds", minimum=1, maximum=10, value=5, step=1)
+        chat_model = gr.Dropdown(["llava", "gemma3", "llama3.2", "gemma:2b", "tinyllama"], value="gemma3", label="Model")
+        start_btn = gr.Button("Start Conversation")
+        output = gr.Textbox(lines=20, label="Conversation", interactive=False)
+        
+        def start_convo(p1, p2, starter, rounds, model):
+            payload = {"name1": p1, "name2": p2, "starter": starter, "rounds": int(rounds), "model": model}
+            r = requests.post(f"{BASE_URL}/persona_chat/", json=payload)
+            return r.json().get("conversation", "Error: " + str(r.text))
+            
+        start_btn.click(start_convo, [persona1, persona2, starter, rounds, chat_model], output)
 
 demo.launch()
