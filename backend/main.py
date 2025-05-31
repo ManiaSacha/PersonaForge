@@ -8,6 +8,7 @@ from backend.rag_engine import load_and_embed, search_docs
 from backend.persona_storage import save_persona, load_persona, log_interaction, export_persona_data
 from fastapi.responses import FileResponse
 from fastapi import UploadFile, File
+from fastapi.staticfiles import StaticFiles
 import requests
 
 # Import FastAPI Users components
@@ -24,7 +25,13 @@ fastapi_users = FastAPIUsers[User, int](
 )
 
 # Create FastAPI app
-app = FastAPI()
+app = FastAPI(
+    title="PersonaForge API",
+    description="API for creating and managing AI personas with RAG capabilities",
+    version="1.0.0",
+    docs_url="/docs",
+    openapi_url="/openapi.json",
+)
 
 # Add CORS middleware
 app.add_middleware(
@@ -62,6 +69,12 @@ app.include_router(
     tags=["users"],
 )
 
+# Mount the logo directory
+try:
+    app.mount("/logo", StaticFiles(directory="logo"), name="logo")
+except Exception as e:
+    print(f"Warning: Could not mount logo directory: {e}")
+
 # Get current user dependency
 current_active_user = fastapi_users.current_user(active=True)
 
@@ -90,9 +103,15 @@ class PersonaCreate(BaseModel):
     goals: List[str]
     response_style: str
 
-@app.get("/")
-async def read_root():
-    return {"msg": "PersonaForge API is live!"}
+@app.get("/", tags=["root"])
+def read_root():
+    return {
+        "message": "Welcome to PersonaForge API",
+        "description": "Create, chat with, and manage AI personas with RAG capabilities",
+        "logo": "/logo/personaforgelogo.png",
+        "docs": "/docs",
+        "version": "1.0.0"
+    }
 
 @app.post("/persona/")
 async def create_persona(persona: PersonaCreate, user: User = Depends(current_active_user)):

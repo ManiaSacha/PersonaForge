@@ -247,8 +247,12 @@ def persona_chat(persona1, persona2, starter, rounds, model):
 
 # Create Gradio interface
 with gr.Blocks(title="PersonaForge") as app:
-    gr.Markdown("# PersonaForge")
-    gr.Markdown("Create, chat with, and manage AI personas with RAG capabilities")
+    with gr.Row():
+        with gr.Column(scale=1):
+            gr.Image("logo/personaforgelogo.png", width=200)
+        with gr.Column(scale=2):
+            gr.Markdown("# PersonaForge")
+            gr.Markdown("Create, chat with, and manage AI personas with RAG capabilities")
     
     # Authentication tab
     with gr.Tab("Authentication"):

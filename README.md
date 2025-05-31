@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="logo/personaforgelogo.png" alt="PersonaForge Logo" width="300">
+</div>
+
 # PersonaForge 🚀
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-green?logo=fastapi)](https://fastapi.tiangolo.com/)
