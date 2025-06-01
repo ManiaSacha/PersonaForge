@@ -2,18 +2,26 @@
   <img src="logo/personaforgelogo.png" alt="PersonaForge Logo" width="300">
 </div>
 
-# PersonaForge 🚀
+# 🚀 PersonaForge
 
+[![Python](https://img.shields.io/badge/Python-3.10-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-green?logo=fastapi)](https://fastapi.tiangolo.com/)
-[![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)](https://www.python.org/)
-[![Gradio](https://img.shields.io/badge/Gradio-5.0+-orange?logo=gradio)](https://gradio.app/)
-[![FastAPI Users](https://img.shields.io/badge/FastAPI_Users-12.1.0-blue?logo=fastapi)](https://fastapi-users.github.io/fastapi-users/)
+[![Gradio](https://img.shields.io/badge/UI-Gradio-orange?logo=gradio)](https://gradio.app/)
+[![FastAPI Users](https://img.shields.io/badge/Auth-FastAPI%20Users-blue?logo=fastapi)](https://fastapi-users.github.io/fastapi-users/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ManiaSacha/PersonaForge)
 
 ---
 
 > **PersonaForge** is a modular platform for building, managing, and running AI personas with Retrieval-Augmented Generation (RAG), LLMs, and multi-persona orchestration. Perfect for research, prototyping, and production AI applications. Now with multi-user support and secure authentication!
+
+---
+
+## 📸 Preview
+
+<div align="center">
+  <img src="logo/PersonaForge.gif" alt="PersonaForge Demo" width="700">
+</div>
 
 ---
 
@@ -162,20 +170,28 @@ All API endpoints require authentication and will only allow access to personas 
 ## 🌟 Example Persona JSON
 ```json
 {
-  "name": "LegalAdvisorGPT",
-  "tone": "Formal",
-  "domain": "Corporate Law",
+  "name": "TechAdvisor",
+  "tone": "Friendly but professional",
+  "domain": "Technology",
   "goals": [
-    "Review contracts",
-    "Identify legal risks",
-    "Summarize compliance requirements"
+    "Explain complex tech concepts simply",
+    "Provide balanced product recommendations",
+    "Help troubleshoot common tech issues"
   ],
-  "response_style": "Legal, structured, bullet-pointed",
+  "response_style": "Clear, concise, with examples",
   "user_id": "1"
 }
 ```
 
-The `user_id` field associates the persona with a specific user account, ensuring proper access control and data isolation.
+## 💡 Why PersonaForge?
+
+PersonaForge is ideal for:
+
+* 🧪 **Researchers** building multi-agent AI systems
+* 💼 **AI engineers** developing domain-specific LLM personas
+* 🛡️ **Teams** needing secure user access and RAG integration
+* 🏫 **Educators** teaching modular LLM design with memory and prompt engineering
+* 🏢 **Businesses** creating specialized AI assistants for different departments
 
 ## 🤝 Contributing
 

@@ -246,11 +246,20 @@ def persona_chat(persona1, persona2, starter, rounds, model):
         return f"Error in persona chat: {response.text}"
 
 # Create Gradio interface
-with gr.Blocks(title="PersonaForge") as app:
+import base64
+
+def get_base64_image(path):
+    with open(path, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+img_base64 = get_base64_image("logo/personaforgelogo.png")
+
+with gr.Blocks(title="PersonaForge", theme=gr.themes.Base(primary_hue="pink", secondary_hue="purple")) as app:
     with gr.Row():
         with gr.Column(scale=1):
-            gr.Image("logo/personaforgelogo.png", width=200)
-        with gr.Column(scale=2):
+            gr.HTML(f'<img src="data:image/png;base64,{img_base64}" style="height:130px;">')
+        with gr.Column(scale=3):
             gr.Markdown("# PersonaForge")
             gr.Markdown("Create, chat with, and manage AI personas with RAG capabilities")
     
