@@ -312,4 +312,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+## 🌐 More Projects
+
+For more exciting projects, check out my portfolio: [https://mania-sacha.netlify.app/](https://mania-sacha.netlify.app/)
+
 > Made with ❤️ by [ManiaSacha](https://github.com/ManiaSacha)
