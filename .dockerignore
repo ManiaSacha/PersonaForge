@@ -1,0 +1,47 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# Local development files
+# Note: personaforge.db is intentionally not ignored as it's mounted as a volume
+*.sqlite
+*.sqlite3
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+temp/
+
+# Git and version control
+.git/
+.gitignore
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker files (to avoid recursive copying)
+.dockerignore
+
+# Documentation and README files
+README.md
+LICENSE
+docs/
+
+# Test files
+tests/
+test_*.py
+
+# Authentication tokens (should not be in the image)
+auth_token.json

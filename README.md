@@ -171,6 +171,8 @@ PersonaForge/
 
 ## 🚀 Quickstart
 
+### Option 1: Local Setup
+
 1. **Clone the repo:**
    ```bash
    git clone https://github.com/ManiaSacha/PersonaForge.git
@@ -197,7 +199,30 @@ PersonaForge/
    - Visit [http://127.0.0.1:7860](http://127.0.0.1:7860) for the Gradio UI
    - Visit [http://localhost:8100/docs](http://localhost:8100/docs) for the API docs
 
-7. **First-time setup:**
+### Option 2: Docker Setup (Recommended)
+
+1. **Clone the repo:**
+   ```bash
+   git clone https://github.com/ManiaSacha/PersonaForge.git
+   cd PersonaForge
+   ```
+
+2. **Build and run with Docker Compose:**
+   ```bash
+   docker compose build
+   docker compose up
+   ```
+
+3. **Access the UI:**
+   - Visit [http://localhost:7860](http://localhost:7860) for the Gradio UI
+   - Visit [http://localhost:8100/docs](http://localhost:8100/docs) for the API docs
+
+4. **To stop the container:**
+   ```bash
+   docker compose down
+   ```
+
+### First-time setup (both options):
    - Register a new user account through the Authentication tab
    - Login with your credentials
    - Create personas and start using the system

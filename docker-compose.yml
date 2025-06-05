@@ -1,0 +1,15 @@
+services:
+  personaforge:
+    build: .
+    container_name: personaforge-app
+    ports:
+      - "8100:8100"  # FastAPI backend
+      - "7860:7860"  # Gradio UI
+    volumes:
+      - ./personas:/app/personas
+      - ./uploads:/app/uploads
+      - ./knowledge:/app/knowledge
+      - ./personaforge.db:/app/personaforge.db
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
