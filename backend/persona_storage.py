@@ -92,21 +92,63 @@ def log_interaction(name: str, user_input: str, response: str, user_id: str = No
     with open(log_file, "a") as f:
         f.write(json.dumps(entry) + "\n")
 
-def export_persona_data(name: str, user_id: str = None):
-    persona = load_persona(name, user_id)
+import zipfile
+import tempfile
+
+def export_persona_data(name: str, user_id: str = None) -> str:
+    persona_data = load_persona(name, user_id)
+    if not persona_data:
+        # This will be caught by FileNotFoundError in the endpoint if load_persona returns None
+        # and the endpoint tries to use a None path. Or handle more explicitly here.
+        raise FileNotFoundError(f"Persona '{name}' not found for user '{user_id}'.")
+
+    log_filename_base = f"{user_id}_{name.lower().replace(' ', '_')}.log.jsonl" if user_id else f"{name.lower().replace(' ', '_')}.log.jsonl"
+    log_file_path = os.path.join(LOG_DIR, log_filename_base)
+
+    # Create a temporary directory for the ZIP file
+    # temp_dir = tempfile.mkdtemp()
+    # zip_filename = f"{user_id}_{name}_export.zip" if user_id else f"{name}_export.zip"
+    # zip_file_path = os.path.join(temp_dir, zip_filename)
     
-    # Use user-specific log file if user_id is provided
-    if user_id:
-        log_file = os.path.join(LOG_DIR, f"{user_id}_{name.lower().replace(' ', '_')}.log.jsonl")
-    else:
-        log_file = os.path.join(LOG_DIR, f"{name.lower().replace(' ', '_')}.log.jsonl")
-    
-    logs = []
-    if os.path.exists(log_file):
-        with open(log_file) as f:
-            logs = [json.loads(line) for line in f]
-    
-    return {
-        "persona": persona,
-        "logs": logs
-    }
+    # Using a named temporary file directly for the zip to simplify cleanup
+    # The FileResponse will handle sending it and it should be cleaned up after.
+    # For more robust cleanup, especially on errors, a try/finally with os.remove might be needed
+    # if not using a context manager that handles deletion.
+    temp_zip_file = tempfile.NamedTemporaryFile(delete=False, suffix='.zip', prefix=f"persona_export_{name}_")
+    zip_file_path = temp_zip_file.name
+    temp_zip_file.close() # Close it so zipfile can open and write to it
+
+    try:
+        with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+            # Add persona JSON data
+            persona_json_str = json.dumps(persona_data, indent=2)
+            zf.writestr(f"{name}_persona.json", persona_json_str)
+
+            # Add logs if they exist
+            if os.path.exists(log_file_path):
+                zf.write(log_file_path, arcname=log_filename_base)
+            else:
+                # Optionally, create an empty log file in the zip or a note
+                zf.writestr(log_filename_base, "# No logs found for this persona.\n")
+            
+            # Add RAG documents if they exist
+            # The RAG DB itself (Chroma) is a directory structure, not a single file easily zipped.
+            # For simplicity, we'll export the source documents if they are stored.
+            persona_docs_dir_base = f"{user_id}_{name}" if user_id else name
+            persona_docs_dir = os.path.join("backend", "persona_docs", persona_docs_dir_base) # Adjusted based on rag_engine DB_DIR structure
+            
+            if os.path.exists(persona_docs_dir) and os.path.isdir(persona_docs_dir):
+                for doc_filename in os.listdir(persona_docs_dir):
+                    doc_file_path = os.path.join(persona_docs_dir, doc_filename)
+                    if os.path.isfile(doc_file_path):
+                        zf.write(doc_file_path, arcname=f"documents/{doc_filename}")
+            else:
+                zf.writestr("documents/readme.txt", "# No uploaded documents found for this persona.\n")
+
+    except Exception as e_zip:
+        # If zipping fails, clean up the partially created temp zip file
+        if os.path.exists(zip_file_path):
+            os.remove(zip_file_path)
+        raise IOError(f"Failed to create persona export zip: {str(e_zip)}")
+
+    return zip_file_path

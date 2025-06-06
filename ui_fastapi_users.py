@@ -118,9 +118,13 @@ def get_personas():
         
         if response.status_code == 200:
             data = response.json()
-            # The API returns a dict with a 'personas' key containing the list
-            personas = data.get('personas', [])
-            return [p["name"] for p in personas]
+            # Handle the response format - the API returns a list of persona objects
+            if isinstance(data, list):
+                return [p["name"] for p in data]
+            else:
+                # Fallback for potential future API changes
+                personas = data.get('personas', [])
+                return [p["name"] for p in personas]
         else:
             print(f"Error fetching personas: {response.status_code} - {response.text}")
             return []
@@ -382,4 +386,11 @@ with gr.Blocks(title="PersonaForge", theme=gr.themes.Base(primary_hue="pink", se
 
 # Launch the app
 if __name__ == "__main__":
-    app.launch(server_name="127.0.0.1", server_port=7860)
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='PersonaForge UI')
+    parser.add_argument('--server_name', type=str, default="127.0.0.1", help='Server name')
+    parser.add_argument('--server_port', type=int, default=7860, help='Server port')
+    args = parser.parse_args()
+    
+    app.launch(server_name=args.server_name, server_port=args.server_port)

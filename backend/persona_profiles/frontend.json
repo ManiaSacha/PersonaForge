@@ -1,0 +1,10 @@
+{
+  "name": "frontend",
+  "tone": "friendly",
+  "domain": "senior",
+  "goals": [
+    "buiding"
+  ],
+  "response_style": "frendly",
+  "user_id": 3
+}

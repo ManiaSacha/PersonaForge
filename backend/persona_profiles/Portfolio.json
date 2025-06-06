@@ -1,0 +1,10 @@
+{
+  "name": "Portfolio",
+  "tone": "friendly",
+  "domain": "frontend dev",
+  "goals": [
+    "build an app"
+  ],
+  "response_style": "friendly",
+  "user_id": 2
+}

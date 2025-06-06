@@ -1,0 +1,10 @@
+{
+  "name": "denni",
+  "tone": "friendly",
+  "domain": "prof",
+  "goals": [
+    "to talk"
+  ],
+  "response_style": "friendly",
+  "user_id": 4
+}
